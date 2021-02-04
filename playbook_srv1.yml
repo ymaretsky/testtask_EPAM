@@ -1,0 +1,52 @@
+---
+- name: install packages
+  hosts: srv1
+  become: true
+
+  tasks:
+   - name: install Git
+     apt: name=git
+
+   - name: install Maven
+     apt: name=maven
+   
+   - name: check Maven
+     shell: mvn --version
+     register: result_mvn
+   - debug: var=result_mvn.stdout  
+
+   - name: install OpenJDK-11-jre
+     apt: name=openjdk-11-jre-headless
+
+   - name: install OpenJDK-11-jdk
+     apt: name=openjdk-11-jdk-headless
+
+   - name: add apt-key for jenkins-rep 
+     apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+
+   - name: add jenkins-rep
+     apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+
+   - name: install jenkins
+     apt: name=jenkins update_cache=yes
+
+#   - name: block Jenkins SetupWizard
+#     lineinfile: dest=/etc/default/jenkins regexp='^JENKINS_ARGS' line='JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT -Djenkins.install.runSetupWizard=false"'
+
+   - name: ensure jenkins is running
+     service: name=jenkins state=started
+
+   - name: wait until the file file with admin-password is present
+     wait_for:
+       path: /var/lib/jenkins/secrets/initialAdminPassword
+       timeout: 60
+
+   - name: get unlock-password
+     shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+     changed_when: false
+     register: result
+
+   - name: WARNING enter this PASSWORD in http://192.168.100.100:8080 for unlock Jenkins
+     debug:
+       var: result.stdout
+
