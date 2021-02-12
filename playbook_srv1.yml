@@ -7,14 +7,6 @@
    - name: install Git
      apt: name=git
 
-   - name: install Maven
-     apt: name=maven
-   
-   - name: check Maven
-     shell: mvn --version
-     register: result_mvn
-   - debug: var=result_mvn.stdout  
-
    - name: install OpenJDK-11-jre
      apt: name=openjdk-11-jre-headless
 
@@ -29,9 +21,6 @@
 
    - name: install jenkins
      apt: name=jenkins update_cache=yes
-
-#   - name: block Jenkins SetupWizard
-#     lineinfile: dest=/etc/default/jenkins regexp='^JENKINS_ARGS' line='JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT -Djenkins.install.runSetupWizard=false"'
 
    - name: ensure jenkins is running
      service: name=jenkins state=started
