@@ -6,6 +6,9 @@
   tasks:
    - name: install Git
      apt: name=git
+     
+   - name: install checkstyle
+     apt: name=checkstyle
 
    - name: install OpenJDK-11-jre
      apt: name=openjdk-11-jre-headless
